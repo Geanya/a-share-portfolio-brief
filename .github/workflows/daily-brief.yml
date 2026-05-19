@@ -1,0 +1,52 @@
+name: A-share portfolio daily brief
+
+on:
+  schedule:
+    - cron: "45 0 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate daily brief
+        run: python portfolio-intelligence/scripts/run_daily_brief.py
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-brief-${{ github.run_id }}
+          path: |
+            portfolio-intelligence/reports/
+            portfolio-intelligence/ui/latest.html
+            portfolio-intelligence/ui/*.html
+          retention-days: 30
+
+      - name: Commit generated report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add portfolio-intelligence/reports portfolio-intelligence/ui
+          if git diff --cached --quiet; then
+            echo "No generated report changes to commit."
+          else
+            git commit -m "Generate daily portfolio brief"
+            git push
+          fi

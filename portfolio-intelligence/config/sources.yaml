@@ -1,0 +1,60 @@
+{
+  "timezone": "Asia/Shanghai",
+  "report_language": "zh-CN",
+  "output": {
+    "format": "markdown",
+    "directory": "reports"
+  },
+  "data_sources": {
+    "market_data": [
+      "akshare_sina_history",
+      "akshare_tencent_history",
+      "akshare_eastmoney_history",
+      "akshare_sina_spot",
+      "public_exchange_or_vendor_pages"
+    ],
+    "news": [
+      "akshare_eastmoney_news",
+      "instrument_name_fallback",
+      "exchange_announcements",
+      "public_finance_sites"
+    ],
+    "fallback_policy": "If any source fails, keep generating the report and list the missing data under data quality notes."
+  },
+  "market_watch": {
+    "a_share_indices": [
+      {"name": "上证指数", "symbol": "000001", "ak_symbol": "sh000001"},
+      {"name": "深证成指", "symbol": "399001", "ak_symbol": "sz399001"},
+      {"name": "创业板指", "symbol": "399006", "ak_symbol": "sz399006"},
+      {"name": "科创50", "symbol": "000688", "ak_symbol": "sh000688"},
+      {"name": "沪深300", "symbol": "000300", "ak_symbol": "sh000300"},
+      {"name": "中证500", "symbol": "000905", "ak_symbol": "sh000905"}
+    ],
+    "global_risk_keywords": [
+      "美股",
+      "纳斯达克",
+      "标普500",
+      "美元人民币",
+      "黄金",
+      "原油",
+      "港股",
+      "中概股",
+      "央行",
+      "关税",
+      "出口管制"
+    ]
+  },
+  "report_sections": [
+    "数据质量",
+    "隔夜海外与宏观风险",
+    "A股大盘盘前观察",
+    "持仓标的风险框架",
+    "今日动作清单"
+  ],
+  "risk_state_rules": {
+    "continue_watch": "Price action is mixed or neutral; wait for confirmation from trend, volume, or news.",
+    "add_watch": "Trend improves and volume confirms, but action still requires manual review.",
+    "trim_warning": "Trend weakens, volume expands on declines, or key news invalidates the original thesis.",
+    "stop_review": "Price breaks key risk levels or a major thesis-breaking event appears."
+  }
+}

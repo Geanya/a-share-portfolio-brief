@@ -1,0 +1,1886 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A股与持仓盘前情报 - 2026-05-19</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --ink: #152033;
+  --muted: #657084;
+  --line: #dfe5ef;
+  --panel: #ffffff;
+  --accent: #1457d9;
+  --accent-soft: #e8f0ff;
+  --red: #c93636;
+  --red-soft: #fff0f0;
+  --green: #15804d;
+  --green-soft: #e9f8f1;
+  --amber: #a66900;
+  --amber-soft: #fff6df;
+  --shadow: 0 16px 45px rgba(26, 38, 70, 0.10);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.app-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  padding: 38px max(24px, calc((100vw - 1200px) / 2)) 30px;
+  color: #fff;
+  background:
+    linear-gradient(120deg, rgba(12, 26, 50, 0.93), rgba(24, 67, 137, 0.92)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120' viewBox='0 0 240 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.13'%3E%3Cpath d='M0 90 C45 25 70 90 120 45 S198 20 240 62'/%3E%3Cpath d='M0 40 C58 70 82 8 132 32 S200 92 240 25'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover, 360px 180px;
+}
+.app-header h1 {
+  margin: 4px 0 14px;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.app-header .eyebrow { color: #a8c7ff; }
+.meta {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(255,255,255,.82);
+  font-size: 14px;
+}
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(108px, 1fr));
+  gap: 10px;
+  align-self: end;
+}
+.hero-metrics div {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 8px;
+  background: rgba(255,255,255,.10);
+}
+.hero-metrics span,
+.metric-card span,
+.quote-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.hero-metrics span { color: rgba(255,255,255,.72); }
+.hero-metrics strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+}
+.page-shell {
+  width: min(1200px, calc(100% - 32px));
+  margin: 24px auto 56px;
+}
+.band,
+.panel,
+.holding-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.band { padding: 22px; }
+.context-band { margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+h2, h3, h4 { margin: 0; letter-spacing: 0; }
+h2 { font-size: 22px; }
+.summary, .note, .copy p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.metric-card {
+  min-height: 112px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcff;
+}
+.metric-card strong {
+  display: block;
+  margin: 8px 0;
+  font-size: 32px;
+}
+.metric-card small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.context-card {
+  min-height: 104px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcff;
+}
+.context-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.context-card strong {
+  display: block;
+  margin: 9px 0 7px;
+  font-size: 22px;
+}
+.context-card small {
+  font-weight: 800;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, .75fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.panel { padding: 22px; min-width: 0; }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+  font-size: 14px;
+}
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  background: #f8faff;
+}
+.holdings-section { margin-top: 22px; }
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  background: rgba(245,247,251,.92);
+  backdrop-filter: blur(14px);
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.search input {
+  width: min(360px, 48vw);
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+.chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: var(--ink);
+  background: #fff;
+  cursor: pointer;
+}
+.chip.active {
+  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.chip span { color: inherit; opacity: .75; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.holding-card {
+  padding: 18px;
+  min-width: 0;
+}
+.card-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-top h3 { font-size: 20px; }
+.card-top p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.status {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.status.risk { color: var(--red); background: var(--red-soft); }
+.status.watch { color: var(--amber); background: var(--amber-soft); }
+.status.neutral { color: var(--accent); background: var(--accent-soft); }
+.status.muted { color: var(--muted); background: #f1f3f7; }
+.quote-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 12px;
+  margin: 16px 0 12px;
+}
+.quote-row div {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8faff;
+  min-width: 0;
+}
+.quote-row strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.up { color: var(--red); }
+.down { color: var(--green); }
+.flat, .muted { color: var(--muted); }
+.price-line {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.tags span {
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: #28425f;
+  background: #edf4fb;
+  font-size: 12px;
+}
+.news {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 11px 0;
+}
+.metric-details {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.metric-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 800;
+}
+.two-col.inner {
+  margin-top: 12px;
+}
+.news summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+.news p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.two-col h4 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.two-col ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.action-detail {
+  margin: 14px 0 0;
+  padding: 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: #f6f9ff;
+  line-height: 1.65;
+}
+.hidden { display: none !important; }
+@media (max-width: 900px) {
+  .app-header { grid-template-columns: 1fr; }
+  .hero-metrics, .metric-grid, .context-grid, .content-grid, .cards { grid-template-columns: 1fr; }
+  .panel { padding: 18px; }
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .search { align-items: stretch; flex-direction: column; gap: 6px; }
+  .search input { width: 100%; }
+}
+@media (max-width: 560px) {
+  .app-header {
+    padding: 28px 16px 24px;
+  }
+  .page-shell {
+    width: calc(100% - 20px);
+    margin-top: 14px;
+  }
+  .band, .panel, .holding-card { padding: 14px; }
+  .hero-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .hero-metrics div { padding: 10px; }
+  .hero-metrics strong { font-size: 22px; }
+  .card-top { align-items: stretch; flex-direction: column; }
+  .status { width: fit-content; }
+  .quote-row, .two-col { grid-template-columns: 1fr; }
+  h2 { font-size: 19px; }
+  .card-top h3 { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Portfolio Intelligence</p>
+      <h1>A股与持仓盘前情报 - 2026-05-19</h1>
+      <ul class="meta"><li>生成时间：2026-05-19 17:40:39 CST</li>
+<li>定位：09:15 盘前准备；仅做条件化风险框架，不构成直接交易指令。</li>
+<li>数据原则：免费公开数据源优先；缺失项会明确标注。</li></ul>
+    </div>
+    <div class="hero-metrics">
+      <div><span>持仓标的</span><strong>23</strong></div>
+      <div><span>减仓警戒</span><strong>0</strong></div>
+      <div><span>继续观察</span><strong>0</strong></div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="band quality">
+      <div class="section-head">
+        <p class="eyebrow">Data Quality</p>
+        <h2>数据质量</h2>
+      </div>
+      <p class="summary">今日报告已降级：行情/新闻公开源没有返回可用数据，因此正文只保留持仓框架和人工复核清单。</p>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span>运行环境网络/DNS异常</span>
+          <strong>1</strong>
+          <small>远程抓取已短路；优先修复本机网络、DNS 或代理配置</small>
+        </div>
+        
+
+        <div class="metric-card">
+          <span>主数据源连接失败</span>
+          <strong>0</strong>
+          <small>不展示逐条报错；已继续尝试备用源或快照源</small>
+        </div>
+        
+
+        <div class="metric-card">
+          <span>持仓代码待补全</span>
+          <strong>0</strong>
+          <small>标的仍保留框架，但不抓取行情</small>
+        </div>
+        
+
+        <div class="metric-card">
+          <span>接口/依赖问题</span>
+          <strong>0</strong>
+          <small>保留在详细日志中，后续按版本修正</small>
+        </div>
+        
+
+        <div class="metric-card">
+          <span>其他问题</span>
+          <strong>0</strong>
+          <small>保留在详细日志中</small>
+        </div>
+        </div>
+    </section>
+
+    <section class="band context-band">
+      <div class="section-head">
+        <p class="eyebrow">Evidence</p>
+        <h2>上下文指标证据</h2>
+      </div>
+      <div class="context-grid"><p class="summary">今日未取得可用的上下文代理指标。</p></div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel market-panel">
+        <div class="section-head">
+          <p class="eyebrow">Market</p>
+          <h2>A股大盘盘前观察</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>指数</th><th>最新收盘</th><th>近一日</th><th>MA5</th><th>MA20</th><th>趋势</th></tr></thead>
+            <tbody>
+        <tr>
+          <td>上证指数</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        
+
+        <tr>
+          <td>深证成指</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        
+
+        <tr>
+          <td>创业板指</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        
+
+        <tr>
+          <td>科创50</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        
+
+        <tr>
+          <td>沪深300</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        
+
+        <tr>
+          <td>中证500</td>
+          <td>N/A</td>
+          <td class="muted">N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>数据不足</td>
+        </tr>
+        </tbody>
+          </table>
+        </div>
+        <p class="note">今日指数行情全部缺失，不生成大盘强弱判断；优先人工查看券商或交易所行情。</p>
+      </div>
+
+      <aside class="panel overseas-panel">
+        <div class="section-head">
+          <p class="eyebrow">Overnight</p>
+          <h2>海外与宏观风险</h2>
+        </div>
+        <div class="copy"><p>已接入第一批上下文指标：恒生指数/恒生科技、南向资金、美元人民币、黄金/铜/原油、部分A股宽基指数；纳指、标普500、费城半导体、VIX、美债收益率仍作为待接入指标。</p>
+<p>今日重点检索关键词：美股, 纳斯达克, 标普500, 美元人民币, 黄金, 原油, 港股, 中概股, 央行, 关税, 出口管制</p>
+<p>盘前判断方式：若海外科技、美元利率、商品价格与组合主题同向共振，提升对应主题的观察权重；若相互冲突，降低动作强度。</p></div>
+      </aside>
+    </section>
+
+    <section class="holdings-section">
+      <div class="toolbar">
+        <div>
+          <p class="eyebrow">Holdings</p>
+          <h2>持仓标的风险框架</h2>
+        </div>
+        <label class="search">
+          <span>搜索</span>
+          <input id="searchInput" type="search" placeholder="名称 / 代码 / 主题">
+        </label>
+      </div>
+      <div class="chips">
+        <button class="chip active" data-filter="all">全部 <span>23</span></button>
+        <button class="chip" data-filter="数据待确认">数据待确认 <span>23</span></button>
+      </div>
+      <div class="cards" id="cards">
+      <article class="holding-card" data-action="数据待确认" data-search="腾讯控股 00700 hk stock 港股 互联网平台 游戏 ai应用">
+        <div class="card-top">
+          <div>
+            <h3>腾讯控股</h3>
+            <p>00700 · HK · stock</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>100 份/股，成本 448.0 HKD</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>互联网平台</span>
+<span>游戏</span>
+<span>AI应用</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>游戏流水与版号：需新闻/公告/财报复核</li>
+<li>广告与视频号商业化：需新闻/公告/财报复核</li>
+<li>云与AI资本开支：需新闻/公告/财报复核</li>
+<li>回购强度：需新闻/公告/财报复核</li>
+<li>港股流动性：代理指标暂缺</li>
+<li>港股流动性：代理指标暂缺</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>游戏流水与版号</li>
+<li>广告与视频号商业化</li>
+<li>云与AI资本开支</li>
+<li>回购强度</li>
+<li>港股流动性</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若恒生科技弱于恒指且腾讯放量跌破20日线，进入减仓警戒</li>
+<li>若回购、业绩和平台经济政策共振改善，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="建滔积层板 01888 hk stock 港股 pcb 覆铜板 电子材料">
+        <div class="card-top">
+          <div>
+            <h3>建滔积层板</h3>
+            <p>01888 · HK · stock</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>500 份/股，成本 42.54 HKD</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>PCB</span>
+<span>覆铜板</span>
+<span>电子材料</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>覆铜板价格：需新闻/公告/财报复核</li>
+<li>铜价与树脂成本：代理指标暂缺</li>
+<li>AI服务器PCB需求：需新闻/公告/财报复核</li>
+<li>港股成交额：代理指标暂缺</li>
+<li>财报毛利率：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>覆铜板价格</li>
+<li>铜价与树脂成本</li>
+<li>AI服务器PCB需求</li>
+<li>港股成交额</li>
+<li>财报毛利率</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若原材料上涨而产品价格无法传导，进入止损/止盈复核</li>
+<li>若行业景气与股价同步放量上行，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="黄金etf华夏 518850 cn etf 黄金 避险 商品">
+        <div class="card-top">
+          <div>
+            <h3>黄金ETF华夏</h3>
+            <p>518850 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1800 份/股，成本 9.599 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>黄金</span>
+<span>避险</span>
+<span>商品</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>COMEX黄金：代理指标暂缺</li>
+<li>美元指数：暂未配置数据源</li>
+<li>实际利率：暂未配置数据源</li>
+<li>人民币汇率：代理指标暂缺</li>
+<li>ETF成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>COMEX黄金</li>
+<li>美元指数</li>
+<li>实际利率</li>
+<li>人民币汇率</li>
+<li>ETF成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若美元和实际利率同步走强且金价跌破20日线，进入减仓警戒</li>
+<li>若避险事件升温且金价放量突破，进入继续观察或加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="中概互联网etf易方达 513050 cn etf 互联网 港股科技 中概">
+        <div class="card-top">
+          <div>
+            <h3>中概互联网ETF易方达</h3>
+            <p>513050 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>14600 份/股，成本 1.179 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>互联网</span>
+<span>港股科技</span>
+<span>中概</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>恒生科技：代理指标暂缺</li>
+<li>南向资金：代理指标暂缺</li>
+<li>成交额：暂未配置数据源</li>
+<li>政策新闻：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>恒生科技</li>
+<li>中概股指数</li>
+<li>南向资金</li>
+<li>成交额</li>
+<li>政策新闻</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若恒生科技与中概同步走弱且ETF放量下跌，进入减仓警戒</li>
+<li>若海外科技风险缓和且港股科技放量修复，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="港美互联网lof 160644 cn lof 港股科技 美股互联网 中概">
+        <div class="card-top">
+          <div>
+            <h3>港美互联网LOF</h3>
+            <p>160644 · CN · lof</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>3500 份/股，成本 1.975 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股科技</span>
+<span>美股互联网</span>
+<span>中概</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>纳斯达克：暂未配置数据源</li>
+<li>中概股：代理指标暂缺</li>
+<li>折溢价：暂未配置数据源</li>
+<li>成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>纳斯达克</li>
+<li>中概股</li>
+<li>恒生科技</li>
+<li>折溢价</li>
+<li>成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若纳指和中概同时回撤且LOF溢价扩大，进入风险复核</li>
+<li>若海外风险偏好修复且折溢价合理，进入继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="红利etf易方达 515180 cn etf 红利 高股息 防御">
+        <div class="card-top">
+          <div>
+            <h3>红利ETF易方达</h3>
+            <p>515180 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>4500 份/股，成本 1.417 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>红利</span>
+<span>高股息</span>
+<span>防御</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>中证红利：代理指标暂缺</li>
+<li>股息率：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li>
+<li>利率预期：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>中证红利</li>
+<li>股息率</li>
+<li>成交额</li>
+<li>利率预期</li>
+<li>防御板块强弱</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若红利拥挤回撤且成交放大，进入减仓警戒</li>
+<li>若市场风险偏好下降但红利相对抗跌，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="港股央企红利etf景顺 520990 cn etf 港股 央企 红利 高股息">
+        <div class="card-top">
+          <div>
+            <h3>港股央企红利ETF景顺</h3>
+            <p>520990 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>5400 份/股，成本 1.063 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>央企</span>
+<span>红利</span>
+<span>高股息</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>恒生央企：代理指标暂缺</li>
+<li>恒生央企：代理指标暂缺</li>
+<li>港股利率敏感性：需新闻/公告/财报复核</li>
+<li>股息率：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>恒生央企</li>
+<li>南向资金</li>
+<li>港股利率敏感性</li>
+<li>股息率</li>
+<li>成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若港股红利资产放量破位，进入减仓警戒</li>
+<li>若南向资金持续流入且分红预期稳定，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="纳指etf嘉实 159501 cn etf 纳斯达克 美股科技 qdii">
+        <div class="card-top">
+          <div>
+            <h3>纳指ETF嘉实</h3>
+            <p>159501 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>3000 份/股，成本 1.916 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>纳斯达克</span>
+<span>美股科技</span>
+<span>QDII</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>纳斯达克100：暂未配置数据源</li>
+<li>美元人民币：代理指标暂缺</li>
+<li>QDII溢价：需新闻/公告/财报复核</li>
+<li>美债收益率：暂未配置数据源</li>
+<li>AI龙头表现：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>纳斯达克100</li>
+<li>美元人民币</li>
+<li>QDII溢价</li>
+<li>美债收益率</li>
+<li>AI龙头表现</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若纳指回撤且QDII溢价偏高，进入减仓警戒</li>
+<li>若纳指趋势强且溢价回落，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="电网设备etf华夏 159326 cn etf 电网设备 电力设备 新基建">
+        <div class="card-top">
+          <div>
+            <h3>电网设备ETF华夏</h3>
+            <p>159326 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>2900 份/股，成本 2.086 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>电网设备</span>
+<span>电力设备</span>
+<span>新基建</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>电网投资政策：需新闻/公告/财报复核</li>
+<li>特高压订单：需新闻/公告/财报复核</li>
+<li>板块成交额：暂未配置数据源</li>
+<li>龙头股趋势：暂未配置数据源</li>
+<li>景气预期：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>电网投资政策</li>
+<li>特高压订单</li>
+<li>板块成交额</li>
+<li>龙头股趋势</li>
+<li>景气预期</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若政策催化落空且板块放量下跌，进入减仓警戒</li>
+<li>若订单和政策共振，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="标普500etf华夏 159655 cn etf 标普500 美股 qdii">
+        <div class="card-top">
+          <div>
+            <h3>标普500ETF华夏</h3>
+            <p>159655 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>2800 份/股，成本 1.834 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>标普500</span>
+<span>美股</span>
+<span>QDII</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>标普500：暂未配置数据源</li>
+<li>美元人民币：代理指标暂缺</li>
+<li>QDII溢价：需新闻/公告/财报复核</li>
+<li>美债收益率：暂未配置数据源</li>
+<li>VIX：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>标普500</li>
+<li>美元人民币</li>
+<li>QDII溢价</li>
+<li>美债收益率</li>
+<li>VIX</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若标普500跌破20日线且VIX上行，进入减仓警戒</li>
+<li>若美股广度改善且溢价合理，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="科创芯片etf嘉实 588200 cn etf 科创 芯片 半导体">
+        <div class="card-top">
+          <div>
+            <h3>科创芯片ETF嘉实</h3>
+            <p>588200 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1400 份/股，成本 3.457 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>科创</span>
+<span>芯片</span>
+<span>半导体</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>科创50：代理指标暂缺</li>
+<li>半导体指数：暂未配置数据源</li>
+<li>国产替代政策：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li>
+<li>龙头股趋势：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>科创50</li>
+<li>半导体指数</li>
+<li>国产替代政策</li>
+<li>成交额</li>
+<li>龙头股趋势</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若科创与半导体双弱且放量跌破关键均线，进入减仓警戒</li>
+<li>若政策或业绩催化带来放量突破，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="全球芯片lof 501225 cn lof 全球芯片 ai算力 半导体 qdii">
+        <div class="card-top">
+          <div>
+            <h3>全球芯片LOF</h3>
+            <p>501225 · CN · lof</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1200 份/股，成本 3.837 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>全球芯片</span>
+<span>AI算力</span>
+<span>半导体</span>
+<span>QDII</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>费城半导体：暂未配置数据源</li>
+<li>英伟达链：需新闻/公告/财报复核</li>
+<li>QDII溢价：需新闻/公告/财报复核</li>
+<li>美元人民币：代理指标暂缺</li>
+<li>成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>费城半导体</li>
+<li>英伟达链</li>
+<li>QDII溢价</li>
+<li>美元人民币</li>
+<li>成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若海外芯片龙头回撤且LOF溢价偏高，进入减仓警戒</li>
+<li>若AI算力链继续扩散且溢价回落，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="自由现金流etf华夏 159201 cn etf 自由现金流 质量因子 红利">
+        <div class="card-top">
+          <div>
+            <h3>自由现金流ETF华夏</h3>
+            <p>159201 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>3500 份/股，成本 1.259 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>自由现金流</span>
+<span>质量因子</span>
+<span>红利</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>质量因子表现：需新闻/公告/财报复核</li>
+<li>红利相对强弱：代理指标暂缺</li>
+<li>成交额：暂未配置数据源</li>
+<li>利率预期：暂未配置数据源</li>
+<li>成分股盈利质量：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>质量因子表现</li>
+<li>红利相对强弱</li>
+<li>成交额</li>
+<li>利率预期</li>
+<li>成分股盈利质量</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若质量因子转弱且市场偏向高弹性成长，进入继续观察</li>
+<li>若防御因子占优，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="船舶etf富国 560710 cn etf 船舶 军工 周期制造">
+        <div class="card-top">
+          <div>
+            <h3>船舶ETF富国</h3>
+            <p>560710 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>3600 份/股，成本 1.029 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>船舶</span>
+<span>军工</span>
+<span>周期制造</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>船舶订单：需新闻/公告/财报复核</li>
+<li>军工板块：需新闻/公告/财报复核</li>
+<li>出口链：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li>
+<li>龙头股趋势：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>船舶订单</li>
+<li>军工板块</li>
+<li>出口链</li>
+<li>成交额</li>
+<li>龙头股趋势</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若订单或军工催化降温且放量下跌，进入减仓警戒</li>
+<li>若景气订单和股价趋势共振，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="紫金矿业 601899 cn stock 铜 黄金 有色金属">
+        <div class="card-top">
+          <div>
+            <h3>紫金矿业</h3>
+            <p>601899 · CN · stock</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>100 份/股，成本 31.27 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>铜</span>
+<span>黄金</span>
+<span>有色金属</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>铜价：代理指标暂缺</li>
+<li>金价：代理指标暂缺</li>
+<li>矿山产量：需新闻/公告/财报复核</li>
+<li>并购项目：需新闻/公告/财报复核</li>
+<li>美元指数：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>铜价</li>
+<li>金价</li>
+<li>矿山产量</li>
+<li>并购项目</li>
+<li>美元指数</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若铜金价格同步走弱且股价跌破20日线，进入减仓警戒</li>
+<li>若商品价格与产量预期同步改善，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="价值100etf富国 512040 cn etf 价值 低估值 宽基因子">
+        <div class="card-top">
+          <div>
+            <h3>价值100ETF富国</h3>
+            <p>512040 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>2800 份/股，成本 1.234 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>价值</span>
+<span>低估值</span>
+<span>宽基因子</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>价值因子：需新闻/公告/财报复核</li>
+<li>沪深300相对强弱：代理指标暂缺</li>
+<li>成交额：暂未配置数据源</li>
+<li>估值分位：需新闻/公告/财报复核</li>
+<li>红利风格：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>价值因子</li>
+<li>沪深300相对强弱</li>
+<li>成交额</li>
+<li>估值分位</li>
+<li>红利风格</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若价值因子跑输且宽基放量下跌，进入继续观察</li>
+<li>若价值风格重新占优，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="中证500增强etf华泰柏瑞 561550 cn etf 中证500 量化增强 中盘">
+        <div class="card-top">
+          <div>
+            <h3>中证500增强ETF华泰柏瑞</h3>
+            <p>561550 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1800 份/股，成本 1.495 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>中证500</span>
+<span>量化增强</span>
+<span>中盘</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>中证500：代理指标暂缺</li>
+<li>超额收益：暂未配置数据源</li>
+<li>成交额：暂未配置数据源</li>
+<li>市场宽度：需新闻/公告/财报复核</li>
+<li>中小盘风险偏好：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>中证500</li>
+<li>超额收益</li>
+<li>成交额</li>
+<li>市场宽度</li>
+<li>中小盘风险偏好</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若中证500跌破关键均线且市场宽度恶化，进入减仓警戒</li>
+<li>若中盘风格扩散且增强产品超额稳定，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="通信etf国泰 515880 cn etf 通信 算力网络 ai基础设施">
+        <div class="card-top">
+          <div>
+            <h3>通信ETF国泰</h3>
+            <p>515880 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1500 份/股，成本 1.519 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>通信</span>
+<span>算力网络</span>
+<span>AI基础设施</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>通信设备指数：暂未配置数据源</li>
+<li>算力链新闻：需新闻/公告/财报复核</li>
+<li>运营商资本开支：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li>
+<li>龙头股趋势：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>通信设备指数</li>
+<li>算力链新闻</li>
+<li>运营商资本开支</li>
+<li>成交额</li>
+<li>龙头股趋势</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若AI算力链分化且通信板块放量下跌，进入减仓警戒</li>
+<li>若订单和政策催化持续，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="香港证券etf易方达 513090 cn etf 港股 券商 金融">
+        <div class="card-top">
+          <div>
+            <h3>香港证券ETF易方达</h3>
+            <p>513090 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1500 份/股，成本 1.779 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>券商</span>
+<span>金融</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>港股成交额：代理指标暂缺</li>
+<li>港交所：代理指标暂缺</li>
+<li>券商政策：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>港股成交额</li>
+<li>港交所</li>
+<li>恒生指数</li>
+<li>南向资金</li>
+<li>券商政策</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若港股成交萎缩且金融板块转弱，进入减仓警戒</li>
+<li>若港股成交放大并带动券商弹性，继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="恒生消费etf广发 159699 cn etf 港股 消费 恒生消费">
+        <div class="card-top">
+          <div>
+            <h3>恒生消费ETF广发</h3>
+            <p>159699 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>2200 份/股，成本 0.914 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>消费</span>
+<span>恒生消费</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>港股消费板块：代理指标暂缺</li>
+<li>内需政策：需新闻/公告/财报复核</li>
+<li>南向资金：代理指标暂缺</li>
+<li>成交额：暂未配置数据源</li>
+<li>龙头股趋势：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>港股消费板块</li>
+<li>内需政策</li>
+<li>南向资金</li>
+<li>成交额</li>
+<li>龙头股趋势</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若消费政策落空且港股消费放量下跌，进入减仓警戒</li>
+<li>若内需政策和成交共振改善，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="储能电池etf易方达 159566 cn etf 储能 电池 新能源">
+        <div class="card-top">
+          <div>
+            <h3>储能电池ETF易方达</h3>
+            <p>159566 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>800 份/股，成本 2.402 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>储能</span>
+<span>电池</span>
+<span>新能源</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>储能招标：需新闻/公告/财报复核</li>
+<li>锂价：需新闻/公告/财报复核</li>
+<li>电池板块：需新闻/公告/财报复核</li>
+<li>海外需求：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>储能招标</li>
+<li>锂价</li>
+<li>电池板块</li>
+<li>海外需求</li>
+<li>成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若价格战或需求走弱压制板块，进入减仓警戒</li>
+<li>若招标和盈利预期改善，进入继续观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="港股创新药etf广发 513120 cn etf 港股 创新药 医药">
+        <div class="card-top">
+          <div>
+            <h3>港股创新药ETF广发</h3>
+            <p>513120 · CN · etf</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>1300 份/股，成本 1.124 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>港股</span>
+<span>创新药</span>
+<span>医药</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>港股创新药指数：代理指标暂缺</li>
+<li>BD交易：需新闻/公告/财报复核</li>
+<li>临床数据：需新闻/公告/财报复核</li>
+<li>医保政策：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>港股创新药指数</li>
+<li>BD交易</li>
+<li>临床数据</li>
+<li>医保政策</li>
+<li>成交额</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>若临床或政策风险引发板块放量下跌，进入减仓警戒</li>
+<li>若BD和临床催化扩散，进入加仓观察</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。行情或代码缺失，今天只保留风险观察框架，不生成量价判断。</p>
+      </article>
+    
+
+      <article class="holding-card" data-action="数据待确认" data-search="广合科技 001389 cn stock pcb 电子制造">
+        <div class="card-top">
+          <div>
+            <h3>广合科技</h3>
+            <p>001389 · CN · stock</p>
+          </div>
+          <span class="status muted">数据待确认</span>
+        </div>
+        <div class="quote-row">
+          <div><span>持仓/成本</span><strong>0 份/股，成本 171.4 CNY</strong></div>
+          <div><span>近一日</span><strong class="muted">N/A</strong></div>
+        </div>
+        <p class="price-line">数据源不可达或代码未补全，今日不生成量价判断。</p>
+        <div class="tags"><span>PCB</span>
+<span>电子制造</span></div>
+        <details class="news" open>
+          <summary>重要新闻</summary>
+          <p>暂无可用新闻源结果；需人工补充公告或主流财经新闻。</p>
+        </details>
+        <div class="two-col">
+          <div>
+            <h4>指标证据</h4>
+            <ul><li>暂无可自动化证据</li></ul>
+          </div>
+          <div>
+            <h4>人工复核</h4>
+            <ul><li>PCB行业景气：需新闻/公告/财报复核</li>
+<li>AI服务器需求：暂未配置数据源</li>
+<li>客户结构：需新闻/公告/财报复核</li>
+<li>成交额：暂未配置数据源</li>
+<li>财报毛利率：需新闻/公告/财报复核</li></ul>
+          </div>
+        </div>
+        <details class="metric-details">
+          <summary>观察指标与风险规则</summary>
+          <div class="two-col inner">
+            <div>
+              <h4>观察指标</h4>
+              <ul><li>PCB行业景气</li>
+<li>AI服务器需求</li>
+<li>客户结构</li>
+<li>成交额</li>
+<li>财报毛利率</li></ul>
+            </div>
+            <div>
+              <h4>风险规则</h4>
+              <ul><li>当前截图显示持仓为0，默认只做观察不纳入仓位动作</li>
+<li>若重新建仓，需要补充股票代码和实际持仓</li></ul>
+            </div>
+          </div>
+        </details>
+        <p class="action-detail"><strong>数据待确认</strong>。截图显示当前持仓为0，仅保留观察；行情缺失时不生成仓位动作。</p>
+      </article>
+    </div>
+    </section>
+  </main>
+
+  <script>
+const searchInput = document.getElementById('searchInput');
+const chips = Array.from(document.querySelectorAll('.chip'));
+const cards = Array.from(document.querySelectorAll('.holding-card'));
+let activeFilter = 'all';
+
+function applyFilters() {
+  const q = (searchInput.value || '').trim().toLowerCase();
+  cards.forEach(card => {
+    const matchesText = !q || card.dataset.search.includes(q);
+    const matchesFilter = activeFilter === 'all' || card.dataset.action === activeFilter;
+    card.classList.toggle('hidden', !(matchesText && matchesFilter));
+  });
+}
+
+searchInput.addEventListener('input', applyFilters);
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chips.forEach(item => item.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter = chip.dataset.filter;
+    applyFilters();
+  });
+});
+</script>
+</body>
+</html>
