@@ -1,6 +1,2 @@
-env network dns unavailable: no market-data hosts resolved
-env network dns detail: finance.sina.com.cn: [Errno 8] nodename nor servname provided, or not known
-env network dns detail: push2his.eastmoney.com: [Errno 8] nodename nor servname provided, or not known
-env network dns detail: search-api-web.eastmoney.com: [Errno 8] nodename nor servname provided, or not known
-env network dns detail: web.ifzq.gtimg.cn: [Errno 8] nodename nor servname provided, or not known
-Skipped remote fetch because DNS preflight failed for all configured market-data hosts.
+价值100ETF富国 news via stock_news_em(512040) failed: 'code'
+价值100ETF富国 news via stock_news_em(价值100ETF富国) failed: 'code'
