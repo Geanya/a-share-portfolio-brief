@@ -20,12 +20,20 @@ python3 portfolio-intelligence/scripts/run_daily_brief.py
 
 ## GitHub Actions
 
-The scheduled workflow runs on weekdays at `00:45 UTC`, which is `08:45 Asia/Shanghai`.
+The scheduled workflow runs on weekdays at `01:00 UTC`, which is `09:00 Asia/Shanghai`.
 
 After each run, check:
 
 - `portfolio-intelligence/reports/YYYY-MM-DD.md`
 - `portfolio-intelligence/ui/latest.html`
 - the workflow artifact named `daily-brief-<run_id>`
+
+To email `latest.html` after each run, configure these repository secrets:
+
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `MAIL_FROM` (optional; defaults to `SMTP_USERNAME`)
 
 The report is for personal research and risk management only. It is not investment advice.

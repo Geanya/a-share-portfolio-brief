@@ -2,7 +2,7 @@ name: A-share portfolio daily brief
 
 on:
   schedule:
-    - cron: "45 0 * * 1-5"
+    - cron: "0 1 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,16 @@ jobs:
 
       - name: Generate daily brief
         run: python portfolio-intelligence/scripts/run_daily_brief.py
+
+      - name: Email latest HTML report
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: geanya@me.com
+        run: python portfolio-intelligence/scripts/send_latest_email.py
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
