@@ -220,6 +220,22 @@ def price_signal(history: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def holding_market_value(holding: Dict[str, Any], signal: Dict[str, Any]) -> Optional[float]:
+    shares = safe_float(holding.get("shares"))
+    price = safe_float(signal.get("last_close"))
+    if shares is None or price is None or shares <= 0:
+        return None
+    return shares * price
+
+
+def unrealized_pct(holding: Dict[str, Any], signal: Dict[str, Any]) -> Optional[float]:
+    cost = safe_float(holding.get("cost"))
+    price = safe_float(signal.get("last_close"))
+    if cost is None or price is None or cost <= 0:
+        return None
+    return (price / cost - 1) * 100
+
+
 def metric_state(change_pct: Optional[float]) -> str:
     if change_pct is None:
         return "neutral"
@@ -398,6 +414,162 @@ def evidence_for_holding(
         else:
             manual_items.append(f"{raw_metric}：暂未配置数据源")
     return evidence[:6], manual_items[:8]
+
+
+def context_score_for_holding(
+    holding: Dict[str, Any],
+    context_metrics: Dict[str, Dict[str, Any]],
+    metric_config: Dict[str, Any],
+) -> Tuple[int, List[str]]:
+    aliases = metric_config.get("metric_aliases", {})
+    seen_metric_ids = set()
+    score = 0
+    notes: List[str] = []
+    for raw_metric in holding.get("watch_metrics", []):
+        for metric_id in aliases.get(raw_metric, []):
+            if not metric_id or metric_id in seen_metric_ids:
+                continue
+            seen_metric_ids.add(metric_id)
+            metric = context_metrics.get(metric_id)
+            if not metric or metric.get("state") == "unavailable":
+                continue
+            state = metric.get("state")
+            if state == "positive":
+                score += 1
+            elif state == "negative":
+                score -= 1
+            notes.append(metric_label(metric))
+    return score, notes[:4]
+
+
+def classify_news(news: List[Dict[str, str]]) -> Tuple[int, List[str]]:
+    positive_words = ["回购", "增持", "净流入", "业绩", "超预期", "订单", "中标", "涨超", "提价", "指引", "受益"]
+    negative_words = ["风险提示", "限购", "净流出", "下跌", "跌超", "监管", "处罚", "减持", "亏损", "不及预期"]
+    score = 0
+    notes: List[str] = []
+    for item in news[:3]:
+        title = item.get("title", "")
+        if not title:
+            continue
+        if any(word in title for word in positive_words):
+            score += 1
+            notes.append(f"正向新闻：{title}")
+        elif any(word in title for word in negative_words):
+            score -= 1
+            notes.append(f"风险新闻：{title}")
+    return score, notes[:3]
+
+
+def trend_score(signal: Dict[str, Any]) -> Tuple[int, List[str]]:
+    if signal.get("state") == "data_unavailable":
+        return 0, ["趋势：行情缺失"]
+    score = 0
+    notes = [f"趋势：{signal.get('trend')}，近一日{pct(signal.get('change_pct'))}"]
+    state = signal.get("state")
+    if state == "add_watch":
+        score += 2
+    elif state == "trim_warning":
+        score -= 2
+    elif state == "stop_review":
+        score -= 3
+
+    change = safe_float(signal.get("change_pct"))
+    volume = str(signal.get("volume_signal") or "")
+    amount = str(signal.get("amount_signal") or "")
+    expanded = "明显放量" in volume or "明显放大" in amount
+    shrinking = "缩量" in volume or "萎缩" in amount
+    if change is not None and expanded:
+        if change > 0:
+            score += 1
+            notes.append("量能：上涨获得成交确认")
+        elif change < 0:
+            score -= 2
+            notes.append("量能：下跌伴随放量，风险权重提高")
+    elif change is not None and shrinking:
+        if change < 0:
+            notes.append("量能：缩量下跌，先观察而非机械减仓")
+        elif change > 0:
+            notes.append("量能：缩量上涨，追涨确认不足")
+    else:
+        notes.append(f"量能：{volume or '数据不足'}，{amount or '成交额数据不足'}")
+    return score, notes
+
+
+def decision_for_holding(
+    holding: Dict[str, Any],
+    signal: Dict[str, Any],
+    news: List[Dict[str, str]],
+    context_metrics: Dict[str, Dict[str, Any]],
+    metric_config: Dict[str, Any],
+    portfolio_value: Optional[float],
+) -> Dict[str, Any]:
+    if signal.get("state") == "data_unavailable":
+        return {
+            "label": "数据待确认",
+            "summary": state_reason(signal, holding),
+            "factors": ["行情或关键代理指标缺失，今天不生成交易倾向。"],
+            "score": 0,
+        }
+
+    shares = safe_float(holding.get("shares")) or 0
+    if shares <= 0:
+        return {
+            "label": "仅观察",
+            "summary": "当前持仓为0，只跟踪主题和价格，不输出仓位动作。",
+            "factors": [f"标的量价：{fmt_num(signal.get('last_close'))}，近一日{pct(signal.get('change_pct'))}，{signal.get('trend')}"],
+            "score": 0,
+        }
+
+    score, factors = trend_score(signal)
+    context_score, context_notes = context_score_for_holding(holding, context_metrics, metric_config)
+    news_score, news_notes = classify_news(news)
+    score += context_score + news_score
+
+    pnl = unrealized_pct(holding, signal)
+    if pnl is not None:
+        factors.append(f"成本：当前价较成本{pct(pnl)}")
+        if pnl <= -20 and score < 0:
+            score += 1
+            factors.append("成本：深度浮亏时默认先复核持仓逻辑，避免把短期弱势机械等同于卖出")
+        elif pnl >= 25 and score < 0:
+            score -= 1
+            factors.append("成本：已有较高浮盈且趋势转弱，止盈保护权重提高")
+
+    market_value = holding_market_value(holding, signal)
+    weight = (market_value / portfolio_value * 100) if market_value is not None and portfolio_value else None
+    if weight is not None:
+        factors.append(f"仓位：估算组合权重{pct(weight)}")
+        if weight >= 12 and score < 0:
+            score -= 1
+            factors.append("仓位：权重较高，风险信号需要更早处理")
+        elif weight <= 2 and score < 0:
+            score += 1
+            factors.append("仓位：权重较低，弱势信号先观察")
+
+    if context_notes:
+        factors.append("主题代理：" + "；".join(context_notes))
+    else:
+        factors.append("主题代理：自动化证据不足，需人工补充行业/宏观判断")
+    if news_notes:
+        factors.append("新闻事件：" + "；".join(news_notes))
+
+    if score >= 4:
+        label = "加仓观察"
+        summary = "趋势、量能或主题证据形成较强共振，仍需人工确认仓位和溢价。"
+    elif score >= 2:
+        label = "偏强观察"
+        summary = "有改善信号，但证据还不足以直接升级为明确买入。"
+    elif score <= -4:
+        label = "风险预警"
+        summary = "趋势、量能、主题或仓位风险出现多项负面共振。"
+    elif score <= -2:
+        label = "复核持仓"
+        summary = "弱势信号存在，但需要结合成本、仓位和主题逻辑复核。"
+    else:
+        label = "持有观察"
+        summary = "多空证据尚未形成清晰方向，维持观察和盘中确认。"
+
+    return {"label": label, "summary": summary, "factors": factors[:8], "score": score}
 
 
 def fetch_index_history(ak: Any, item: Dict[str, Any], notes: List[str]) -> List[Dict[str, Any]]:
@@ -837,8 +1009,11 @@ def render_report(
 
     lines.append("## 持仓标的风险框架")
     lines.append("")
+    market_values = [holding_market_value(holding, signal) for holding, signal, _ in holding_rows]
+    portfolio_value = sum(value for value in market_values if value is not None) or None
     for holding, signal, news in holding_rows:
         evidence, manual_items = evidence_for_holding(holding, signal, context_metrics, metric_config)
+        decision = decision_for_holding(holding, signal, news, context_metrics, metric_config, portfolio_value)
         review = "，代码待确认" if holding.get("needs_review") else ""
         code = holding.get("code") or "待确认"
         lines.append(f"### {holding.get('name')}（{code}，{holding.get('market')}，{holding.get('asset_type')}{review}）")
@@ -851,7 +1026,8 @@ def render_report(
         lines.append(f"- 指标证据：{'; '.join(evidence) if evidence else '暂无可自动化证据'}")
         lines.append(f"- 人工复核：{'; '.join(manual_items) if manual_items else '无'}")
         lines.append(f"- 风险规则：{'; '.join(holding.get('risk_rules', []))}")
-        lines.append(f"- 今日动作框架：**{state_label(signal.get('state', 'continue_watch'))}**。{state_reason(signal, holding)}")
+        lines.append(f"- 今日动作框架：**{decision['label']}**。{decision['summary']}（综合分 {decision['score']}）")
+        lines.append(f"- 决策依据：{'; '.join(decision['factors'])}")
         lines.append("")
 
     lines.append("## 今日动作清单")
